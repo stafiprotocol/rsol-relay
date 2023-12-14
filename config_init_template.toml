@@ -1,0 +1,25 @@
+
+EndpointList = ["https://api.devnet.solana.com"]
+LogFilePath = ""
+KeystorePath = "./keys/solana_keys.json"
+
+RSolProgramID = "5N1PkgbPx5Qs3eGaJre16AHsNMRPYM9JSwxXDG83tWX9"
+MinterProgramID ="HDb577JnkPHLFpfbTg1ncX9jmVHGjzX6S9bgZvNnXjVj"
+
+RSolMintAddress = "F6KFk1jzBNQis7HdVdUyFLYQ6L3dVZoYL4VwwgQvnjBE"
+FeeRecipientAddress = "DGk5qWr3ErhYdSrB64tUsy5sFyyQ8Gf9bhPhYsVk62DB"
+ValidatorAddress = "FwR3PbjS5iyqzLiLugrBqKSa5EKZ4vK9SKs7eQXtT59f"
+BridgeSignerAddress = "55GGz9kCyU8guxJBTtGSscWbM6WS9RsZ4nDmKZU19ubF"
+
+FeePayerAccount = "CvqXmans4G1fMbrVtZEADKNSwozSHz86WrPKCFuiJ6b8"
+AdminAccount = "6TRM8kJfNqp4hLo9WTNwHWSjLQYgZimPVWwFEFFiYfdp"
+StakeManagerAccount = "8qwxrxx3M2TmKNQnPg6B7D63iMccRkJh5oKByzJHkqYi"
+MinterManagerAccount="78vLwpgMx2GkSdqxQbYMWx8W1gzg6pBcGVAUioXEoDyQ"
+
+Bond = 0
+Unbond = 0
+Active = 0
+LatestEra = 0
+Rate = 1000000000
+TotalRSolSupply = 0
+TotalProtocolFee = 0
