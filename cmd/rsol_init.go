@@ -96,10 +96,15 @@ func rsolInitCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Printf("\nconfig:\n %+v", cfg)
+			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
+			fmt.Println("stakePool account:", stakePool.ToBase58())
+			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
+			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
+			fmt.Println("stake pool rent:", stakePoolRent)
+			fmt.Println("stake manager rent:", stakeManagerRent)
 		Out:
 			for {
-				fmt.Println("\ncheck config again, then press (y/n) to continue:")
+				fmt.Println("\ncheck account info, then press (y/n) to continue:")
 				var input string
 				fmt.Scanln(&input)
 				switch input {
@@ -178,13 +183,6 @@ func rsolInitCmd() *cobra.Command {
 
 				break
 			}
-
-			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
-			fmt.Println("stakePool account:", stakePool.ToBase58())
-			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
-			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("stake pool rent:", stakePoolRent)
-			fmt.Println("stake manager rent:", stakeManagerRent)
 
 			return nil
 		},

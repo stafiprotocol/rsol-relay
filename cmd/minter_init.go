@@ -102,10 +102,14 @@ func minterInitCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Printf("\nconfig:\n %+v", cfg)
+			fmt.Println("minterManager account:", minterManagerAccount.PublicKey.ToBase58())
+			fmt.Println("mintAuthority", mintAuthority.ToBase58())
+			fmt.Println("stakepool", stakePool.ToBase58())
+			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
+			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
 		Out:
 			for {
-				fmt.Println("\ncheck config again, then press (y/n) to continue:")
+				fmt.Println("\ncheck account info, then press (y/n) to continue:")
 				var input string
 				fmt.Scanln(&input)
 				switch input {
@@ -167,11 +171,6 @@ func minterInitCmd() *cobra.Command {
 
 				break
 			}
-			fmt.Println("minterManager account:", minterManagerAccount.PublicKey.ToBase58())
-			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
-			fmt.Println("mintAuthority", mintAuthority.ToBase58())
-			fmt.Println("stakepool", stakePool.ToBase58())
-			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
 
 			return nil
 		},
