@@ -30,7 +30,7 @@ func rsolInitCmd() *cobra.Command {
 			}
 			fmt.Printf("config path: %s\n", configPath)
 
-			cfg, err := config.Load(configPath)
+			cfg, err := config.LoadInitConfig(configPath)
 			if err != nil {
 				return err
 			}

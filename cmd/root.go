@@ -40,6 +40,7 @@ func NewRootCmd() *cobra.Command {
 		vaultListCmd(),
 		rsolInitCmd(),
 		minterInitCmd(),
+		startCmd(),
 	)
 
 	return rootCmd

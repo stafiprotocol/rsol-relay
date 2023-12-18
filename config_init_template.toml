@@ -1,20 +1,19 @@
 
 EndpointList = ["https://api.devnet.solana.com"]
-LogFilePath = ""
 KeystorePath = "./keys/solana_keys.json"
 
 RSolProgramID = "5N1PkgbPx5Qs3eGaJre16AHsNMRPYM9JSwxXDG83tWX9"
-MinterProgramID ="HDb577JnkPHLFpfbTg1ncX9jmVHGjzX6S9bgZvNnXjVj"
+MinterProgramID = "HDb577JnkPHLFpfbTg1ncX9jmVHGjzX6S9bgZvNnXjVj"
 
-RSolMintAddress = "F6KFk1jzBNQis7HdVdUyFLYQ6L3dVZoYL4VwwgQvnjBE"
-FeeRecipientAddress = "DGk5qWr3ErhYdSrB64tUsy5sFyyQ8Gf9bhPhYsVk62DB"
-ValidatorAddress = "FwR3PbjS5iyqzLiLugrBqKSa5EKZ4vK9SKs7eQXtT59f"
-BridgeSignerAddress = "55GGz9kCyU8guxJBTtGSscWbM6WS9RsZ4nDmKZU19ubF"
+RSolMintAddress = "6jnyhgA2dPWDpw1WqgTaCyjp8otXkP5655DQ6RSnwbv5"
+FeeRecipientAddress = "344uJfqqsMji7jkcoGY6vcHpExsupcygpex6bJvq2ywG"
+ValidatorAddress = "vgcDar2pryHvMgPkKaZfh8pQy4BJxv7SpwUG7zinWjG"
+BridgeSignerAddress = "4hnrULUvAN58iUNaBLQxwVDJV4Qa1G5QGTr7aykjXra7"
 
-FeePayerAccount = "CvqXmans4G1fMbrVtZEADKNSwozSHz86WrPKCFuiJ6b8"
-AdminAccount = "6TRM8kJfNqp4hLo9WTNwHWSjLQYgZimPVWwFEFFiYfdp"
-StakeManagerAccount = "8qwxrxx3M2TmKNQnPg6B7D63iMccRkJh5oKByzJHkqYi"
-MinterManagerAccount="78vLwpgMx2GkSdqxQbYMWx8W1gzg6pBcGVAUioXEoDyQ"
+FeePayerAccount = "CCD2dZ17Gse1EEadCznr94bMNyiFsEfAmywwiFuP5G34"
+AdminAccount = "AcHoouLiNg8uxzwrXPSjTKEMfvDmkKpXyU9uGY61QASh"
+StakeManagerAccount = "FccgufF6s9WivdfZYKsR52DWyN9fFMyELvKjyJNCeDkj"
+MintManagerAccount = "5ou6pU6ByghiA148DokoVQLpPqGcnww9qS8TQzwcmQcx"
 
 Bond = 0
 Unbond = 0

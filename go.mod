@@ -5,8 +5,9 @@ go 1.20
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/mr-tron/base58 v1.2.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
-	github.com/stafiprotocol/solana-go-sdk v1.4.0
+	github.com/stafiprotocol/solana-go-sdk v1.4.2
 	golang.org/x/crypto v0.16.0
 	golang.org/x/term v0.15.0
 )
@@ -21,7 +22,6 @@ require (
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/near/borsh-go v0.3.2-0.20220516180422-1ff87d108454 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf // indirect
 	github.com/teserakt-io/golang-ed25519 v0.0.0-20210104091850-3888c087a4c8 // indirect
 	github.com/tidwall/gjson v1.6.3 // indirect

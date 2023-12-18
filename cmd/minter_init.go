@@ -30,7 +30,7 @@ func minterInitCmd() *cobra.Command {
 			}
 			fmt.Printf("config path: %s\n", configPath)
 
-			cfg, err := config.Load(configPath)
+			cfg, err := config.LoadInitConfig(configPath)
 			if err != nil {
 				return err
 			}
@@ -80,7 +80,7 @@ func minterInitCmd() *cobra.Command {
 			if !exist {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
-			minterManagerAccount, exist := accountMap[cfg.MinterManagerAccount]
+			mintManagerAccount, exist := accountMap[cfg.MintManagerAccount]
 			if !exist {
 				return fmt.Errorf("minterStakeManager not exit in vault")
 			}
@@ -97,12 +97,12 @@ func minterInitCmd() *cobra.Command {
 
 			extMintAthorities := []common.PublicKey{stakePool, bridgeSigner}
 
-			mintAuthority, _, err := common.FindProgramAddress([][]byte{minterManagerAccount.PublicKey.Bytes(), mintAuthoritySeed}, minterProgramID)
+			mintAuthority, _, err := common.FindProgramAddress([][]byte{mintManagerAccount.PublicKey.Bytes(), mintAuthoritySeed}, minterProgramID)
 			if err != nil {
 				return err
 			}
 
-			fmt.Println("minterManager account:", minterManagerAccount.PublicKey.ToBase58())
+			fmt.Println("mintManager account:", mintManagerAccount.PublicKey.ToBase58())
 			fmt.Println("mintAuthority", mintAuthority.ToBase58())
 			fmt.Println("stakepool", stakePool.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
@@ -127,21 +127,21 @@ func minterInitCmd() *cobra.Command {
 				Instructions: []types.Instruction{
 					sysprog.CreateAccount(
 						feePayerAccount.PublicKey,
-						minterManagerAccount.PublicKey,
+						mintManagerAccount.PublicKey,
 						minterProgramID,
 						minterManagerRent,
 						minterprog.MinterManagerAccountLengthDefault,
 					),
 					minterprog.Initialize(
 						minterProgramID,
-						minterManagerAccount.PublicKey,
+						mintManagerAccount.PublicKey,
 						mintAuthority,
 						rSolMint,
 						adminAccount.PublicKey,
 						extMintAthorities,
 					),
 				},
-				Signers:         []types.Account{feePayerAccount, minterManagerAccount, adminAccount},
+				Signers:         []types.Account{feePayerAccount, mintManagerAccount, adminAccount},
 				FeePayer:        feePayerAccount.PublicKey,
 				RecentBlockHash: res.Blockhash,
 			})
@@ -159,7 +159,7 @@ func minterInitCmd() *cobra.Command {
 				if retry > 60 {
 					return fmt.Errorf("tx %s failed", txHash)
 				}
-				_, err := c.GetAccountInfo(context.Background(), minterManagerAccount.PublicKey.ToBase58(), client.GetAccountInfoConfig{
+				_, err := c.GetAccountInfo(context.Background(), mintManagerAccount.PublicKey.ToBase58(), client.GetAccountInfoConfig{
 					Encoding:  client.GetAccountInfoConfigEncodingBase64,
 					DataSlice: client.GetAccountInfoConfigDataSlice{},
 				})
