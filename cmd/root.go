@@ -41,6 +41,7 @@ func NewRootCmd() *cobra.Command {
 		rsolInitCmd(),
 		minterInitCmd(),
 		startCmd(),
+		rsolSetRateLimitCmd(),
 	)
 
 	return rootCmd

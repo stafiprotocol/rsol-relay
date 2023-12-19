@@ -22,3 +22,5 @@ LatestEra = 0
 Rate = 1000000000
 TotalRSolSupply = 0
 TotalProtocolFee = 0
+
+RateChangeLimit = 100000000 # used by rsol-set-rate-change-limit 

@@ -37,9 +37,8 @@ type ConfigInit struct {
 	TotalRSolSupply  uint64
 	TotalProtocolFee uint64
 
-	// task use
-	StakeManagerAddress string
-	MintManagerAddress  string
+	// set use
+	RateChangeLimit uint64
 }
 
 func LoadInitConfig(configFilePath string) (*ConfigInit, error) {
