@@ -7,7 +7,5 @@ MinterProgramID = "HDb577JnkPHLFpfbTg1ncX9jmVHGjzX6S9bgZvNnXjVj"
 
 StakeManagerAddress = "FccgufF6s9WivdfZYKsR52DWyN9fFMyELvKjyJNCeDkj"
 MintManagerAddress = "5ou6pU6ByghiA148DokoVQLpPqGcnww9qS8TQzwcmQcx"
-RSolMintAddress = "6jnyhgA2dPWDpw1WqgTaCyjp8otXkP5655DQ6RSnwbv5"
-FeeRecipientAddress = "344uJfqqsMji7jkcoGY6vcHpExsupcygpex6bJvq2ywG"
 
 FeePayerAccount = "CCD2dZ17Gse1EEadCznr94bMNyiFsEfAmywwiFuP5G34"

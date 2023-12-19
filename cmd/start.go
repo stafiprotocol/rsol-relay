@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/stafiprotocol/rsol-relay/pkg/config"
+	"github.com/stafiprotocol/rsol-relay/pkg/log"
 	"github.com/stafiprotocol/rsol-relay/pkg/utils"
 	"github.com/stafiprotocol/rsol-relay/pkg/vault"
 	"github.com/stafiprotocol/rsol-relay/task"
@@ -58,6 +59,11 @@ func startCmd() *cobra.Command {
 				return err
 			}
 			logrus.SetLevel(logLevel)
+			err = log.InitLogFile(cfg.LogFilePath + "/relay")
+			if err != nil {
+				return fmt.Errorf("InitLogFile failed: %w", err)
+			}
+
 			ctx := utils.ShutdownListener()
 
 			v, err := vault.NewVaultFromWalletFile(cfg.KeystorePath)

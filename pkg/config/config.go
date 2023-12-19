@@ -12,23 +12,23 @@ import (
 
 type ConfigInit struct {
 	EndpointList []string // url for  rpc endpoint
-	LogFilePath  string
 	KeystorePath string
 
 	RSolProgramID   string
 	MinterProgramID string
 
+	StakeManagerAccount string
+	MintManagerAccount  string
+
+	// init related
 	RSolMintAddress     string
 	FeeRecipientAddress string
 	ValidatorAddress    string
 	BridgeSignerAddress string
 
-	FeePayerAccount     string
-	AdminAccount        string
-	StakeManagerAccount string
-	MintManagerAccount  string
+	FeePayerAccount string
+	AdminAccount    string
 
-	// init related
 	Bond             uint64
 	Unbond           uint64
 	Active           uint64
@@ -37,7 +37,7 @@ type ConfigInit struct {
 	TotalRSolSupply  uint64
 	TotalProtocolFee uint64
 
-	// set use
+	// set related
 	RateChangeLimit uint64
 }
 
@@ -45,9 +45,6 @@ func LoadInitConfig(configFilePath string) (*ConfigInit, error) {
 	var cfg = ConfigInit{}
 	if err := loadSysConfigInit(configFilePath, &cfg); err != nil {
 		return nil, err
-	}
-	if len(cfg.LogFilePath) == 0 {
-		cfg.LogFilePath = "./log_data"
 	}
 
 	return &cfg, nil
@@ -75,9 +72,6 @@ type ConfigStart struct {
 
 	StakeManagerAddress string
 	MintManagerAddress  string
-
-	RSolMintAddress     string
-	FeeRecipientAddress string
 
 	FeePayerAccount string
 }

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"runtime"
@@ -54,13 +55,23 @@ func NewTask(cfg config.ConfigStart, accouts map[string]types.Account) *Task {
 }
 
 func (task *Task) Start() error {
+	task.client = client.NewClient(task.cfg.EndpointList)
 
 	rSolProgramID := common.PublicKeyFromString(task.cfg.RSolProgramID)
 	minterProgramID := common.PublicKeyFromString(task.cfg.MinterProgramID)
 	stakeManager := common.PublicKeyFromString(task.cfg.StakeManagerAddress)
 	mintManager := common.PublicKeyFromString(task.cfg.MintManagerAddress)
-	rSolMint := common.PublicKeyFromString(task.cfg.RSolMintAddress)
-	feeRecipient := common.PublicKeyFromString(task.cfg.FeeRecipientAddress)
+	stakeManagerInfo, err := task.client.GetStakeManager(context.Background(), stakeManager.ToBase58())
+	if err != nil {
+		return err
+	}
+	feeRecipient := stakeManagerInfo.FeeRecipient
+
+	mintManagerInfo, err := task.client.GetMintManager(context.Background(), mintManager.ToBase58())
+	if err != nil {
+		return err
+	}
+	rSolMint := mintManagerInfo.RSolMint
 
 	stakePool, _, err := common.FindProgramAddress([][]byte{stakeManager.Bytes(), stakePoolSeed}, rSolProgramID)
 	if err != nil {
@@ -85,8 +96,6 @@ func (task *Task) Start() error {
 	task.stakePool = stakePool
 	task.mintAuthority = mintAuthority
 	task.feePayerAccount = feePayerAccount
-
-	task.client = client.NewClient(task.cfg.EndpointList)
 
 	task.appendHandlers(task.EraNew, task.EraBond, task.EraUnbond, task.EraUpdataActive, task.EraUpdataRate, task.EraMerge, task.EraWithdraw)
 	SafeGoWithRestart(task.handler)
@@ -146,7 +155,7 @@ Out:
 			retry = 0
 		}
 
-		time.Sleep(12 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }
 
