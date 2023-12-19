@@ -59,7 +59,7 @@ func rsolSetRateLimitCmd() *cobra.Command {
 				fmt.Printf("get recent block hash error, err: %v\n", err)
 			}
 
-			rSolProgramID := common.PublicKeyFromString(cfg.RSolProgramID)
+			stakeManagerProgramID := common.PublicKeyFromString(cfg.StakeManagerProgramID)
 
 			feePayerAccount, exist := accountMap[cfg.FeePayerAccount]
 			if !exist {
@@ -97,7 +97,7 @@ func rsolSetRateLimitCmd() *cobra.Command {
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
 					rsolprog.SetRateChangeLimit(
-						rSolProgramID,
+						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
 						cfg.RateChangeLimit,

@@ -64,8 +64,8 @@ func minterInitCmd() *cobra.Command {
 			}
 
 			rSolMint := common.PublicKeyFromString(cfg.RSolMintAddress)
-			minterProgramID := common.PublicKeyFromString(cfg.MinterProgramID)
-			rSolProgramID := common.PublicKeyFromString(cfg.RSolProgramID)
+			mintManagerProgramID := common.PublicKeyFromString(cfg.MintManagerProgramID)
+			stakeManagerProgramID := common.PublicKeyFromString(cfg.StakeManagerProgramID)
 			bridgeSigner := common.PublicKeyFromString(cfg.BridgeSignerAddress)
 
 			feePayerAccount, exist := accountMap[cfg.FeePayerAccount]
@@ -85,7 +85,7 @@ func minterInitCmd() *cobra.Command {
 				return fmt.Errorf("minterStakeManager not exit in vault")
 			}
 
-			stakePool, _, err := common.FindProgramAddress([][]byte{stakeManagerAccount.PublicKey.Bytes(), stakePoolSeed}, rSolProgramID)
+			stakePool, _, err := common.FindProgramAddress([][]byte{stakeManagerAccount.PublicKey.Bytes(), stakePoolSeed}, stakeManagerProgramID)
 			if err != nil {
 				return err
 			}
@@ -97,7 +97,7 @@ func minterInitCmd() *cobra.Command {
 
 			extMintAthorities := []common.PublicKey{stakePool, bridgeSigner}
 
-			mintAuthority, _, err := common.FindProgramAddress([][]byte{mintManagerAccount.PublicKey.Bytes(), mintAuthoritySeed}, minterProgramID)
+			mintAuthority, _, err := common.FindProgramAddress([][]byte{mintManagerAccount.PublicKey.Bytes(), mintAuthoritySeed}, mintManagerProgramID)
 			if err != nil {
 				return err
 			}
@@ -128,12 +128,12 @@ func minterInitCmd() *cobra.Command {
 					sysprog.CreateAccount(
 						feePayerAccount.PublicKey,
 						mintManagerAccount.PublicKey,
-						minterProgramID,
+						mintManagerProgramID,
 						minterManagerRent,
 						minterprog.MinterManagerAccountLengthDefault,
 					),
 					minterprog.Initialize(
-						minterProgramID,
+						mintManagerProgramID,
 						mintManagerAccount.PublicKey,
 						mintAuthority,
 						rSolMint,

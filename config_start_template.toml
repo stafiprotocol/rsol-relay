@@ -2,8 +2,8 @@
 EndpointList = ["https://api.devnet.solana.com"]
 KeystorePath = "./keys/solana_keys.json"
 
-RSolProgramID = "5N1PkgbPx5Qs3eGaJre16AHsNMRPYM9JSwxXDG83tWX9"
-MinterProgramID = "HDb577JnkPHLFpfbTg1ncX9jmVHGjzX6S9bgZvNnXjVj"
+StakeManagerProgramID = "5N1PkgbPx5Qs3eGaJre16AHsNMRPYM9JSwxXDG83tWX9"
+MintManagerProgramID = "HDb577JnkPHLFpfbTg1ncX9jmVHGjzX6S9bgZvNnXjVj"
 
 StakeManagerAddress = "FccgufF6s9WivdfZYKsR52DWyN9fFMyELvKjyJNCeDkj"
 MintManagerAddress = "5ou6pU6ByghiA148DokoVQLpPqGcnww9qS8TQzwcmQcx"

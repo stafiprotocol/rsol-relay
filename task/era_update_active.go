@@ -31,7 +31,7 @@ func (task *Task) EraUpdataActive() error {
 	rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 		Instructions: []types.Instruction{
 			rsolprog.EraUpdateActive(
-				task.rSolProgramID,
+				task.stakeManagerProgramID,
 				task.stakeManager,
 				stakeAccount,
 			),

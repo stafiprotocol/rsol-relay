@@ -53,7 +53,7 @@ func (task *Task) EraMerge() error {
 				rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 					Instructions: []types.Instruction{
 						rsolprog.EraMerge(
-							task.rSolProgramID,
+							task.stakeManagerProgramID,
 							task.stakeManager,
 							srcStakeAccount,
 							dstStakeAccount,

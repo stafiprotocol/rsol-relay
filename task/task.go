@@ -25,14 +25,14 @@ type Task struct {
 	cfg         config.ConfigStart
 	accountsMap map[string]types.Account
 
-	rSolProgramID   common.PublicKey
-	minterProgramID common.PublicKey
-	stakeManager    common.PublicKey
-	mintManager     common.PublicKey
-	rSolMint        common.PublicKey
-	feeRecipient    common.PublicKey
-	stakePool       common.PublicKey
-	mintAuthority   common.PublicKey
+	stakeManagerProgramID common.PublicKey
+	mintManagerProgramID  common.PublicKey
+	stakeManager          common.PublicKey
+	mintManager           common.PublicKey
+	rSolMint              common.PublicKey
+	feeRecipient          common.PublicKey
+	stakePool             common.PublicKey
+	mintAuthority         common.PublicKey
 
 	feePayerAccount types.Account
 
@@ -57,8 +57,8 @@ func NewTask(cfg config.ConfigStart, accouts map[string]types.Account) *Task {
 func (task *Task) Start() error {
 	task.client = client.NewClient(task.cfg.EndpointList)
 
-	rSolProgramID := common.PublicKeyFromString(task.cfg.RSolProgramID)
-	minterProgramID := common.PublicKeyFromString(task.cfg.MinterProgramID)
+	stakeManagerProgramID := common.PublicKeyFromString(task.cfg.StakeManagerProgramID)
+	mintManagerProgramID := common.PublicKeyFromString(task.cfg.MintManagerProgramID)
 	stakeManager := common.PublicKeyFromString(task.cfg.StakeManagerAddress)
 	mintManager := common.PublicKeyFromString(task.cfg.MintManagerAddress)
 	stakeManagerInfo, err := task.client.GetStakeManager(context.Background(), stakeManager.ToBase58())
@@ -73,11 +73,11 @@ func (task *Task) Start() error {
 	}
 	rSolMint := mintManagerInfo.RSolMint
 
-	stakePool, _, err := common.FindProgramAddress([][]byte{stakeManager.Bytes(), stakePoolSeed}, rSolProgramID)
+	stakePool, _, err := common.FindProgramAddress([][]byte{stakeManager.Bytes(), stakePoolSeed}, stakeManagerProgramID)
 	if err != nil {
 		return err
 	}
-	mintAuthority, _, err := common.FindProgramAddress([][]byte{mintManager.Bytes(), mintAuthoritySeed}, minterProgramID)
+	mintAuthority, _, err := common.FindProgramAddress([][]byte{mintManager.Bytes(), mintAuthoritySeed}, mintManagerProgramID)
 	if err != nil {
 		return err
 	}
@@ -87,8 +87,8 @@ func (task *Task) Start() error {
 		return fmt.Errorf("fee payer not exit in vault")
 	}
 
-	task.rSolProgramID = rSolProgramID
-	task.minterProgramID = minterProgramID
+	task.stakeManagerProgramID = stakeManagerProgramID
+	task.mintManagerProgramID = mintManagerProgramID
 	task.stakeManager = stakeManager
 	task.mintManager = mintManager
 	task.rSolMint = rSolMint

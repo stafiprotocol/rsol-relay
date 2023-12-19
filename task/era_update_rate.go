@@ -32,14 +32,14 @@ func (task *Task) EraUpdataRate() error {
 	rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 		Instructions: []types.Instruction{
 			rsolprog.EraUpdateRate(
-				task.rSolProgramID,
+				task.stakeManagerProgramID,
 				task.stakeManager,
 				task.stakePool,
 				task.mintManager,
 				rSolMint,
 				task.feeRecipient,
 				task.mintAuthority,
-				task.minterProgramID,
+				task.mintManagerProgramID,
 			),
 		},
 		Signers:         []types.Account{task.feePayerAccount},

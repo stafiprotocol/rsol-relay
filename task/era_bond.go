@@ -32,7 +32,7 @@ func (task *Task) EraBond() error {
 	rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 		Instructions: []types.Instruction{
 			rsolprog.EraBond(
-				task.rSolProgramID,
+				task.stakeManagerProgramID,
 				task.stakeManager,
 				stakeManager.Validators[0], // use first validator
 				task.stakePool,

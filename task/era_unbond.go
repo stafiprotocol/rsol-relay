@@ -39,7 +39,7 @@ func (task *Task) EraUnbond() error {
 	rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 		Instructions: []types.Instruction{
 			rsolprog.EraUnbond(
-				task.rSolProgramID,
+				task.stakeManagerProgramID,
 				task.stakeManager,
 				task.stakePool,
 				stakeAccount,

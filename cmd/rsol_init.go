@@ -64,7 +64,7 @@ func rsolInitCmd() *cobra.Command {
 			}
 
 			rSolMint := common.PublicKeyFromString(cfg.RSolMintAddress)
-			rSolProgramID := common.PublicKeyFromString(cfg.RSolProgramID)
+			stakeManagerProgramID := common.PublicKeyFromString(cfg.StakeManagerProgramID)
 			feeRecipient := common.PublicKeyFromString(cfg.FeeRecipientAddress)
 			validator := common.PublicKeyFromString(cfg.ValidatorAddress)
 
@@ -81,7 +81,7 @@ func rsolInitCmd() *cobra.Command {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
 
-			stakePool, _, err := common.FindProgramAddress([][]byte{stakeManagerAccount.PublicKey.Bytes(), stakePoolSeed}, rSolProgramID)
+			stakePool, _, err := common.FindProgramAddress([][]byte{stakeManagerAccount.PublicKey.Bytes(), stakePoolSeed}, stakeManagerProgramID)
 			if err != nil {
 				return err
 			}
@@ -128,12 +128,12 @@ func rsolInitCmd() *cobra.Command {
 					sysprog.CreateAccount(
 						feePayerAccount.PublicKey,
 						stakeManagerAccount.PublicKey,
-						rSolProgramID,
+						stakeManagerProgramID,
 						stakeManagerRent,
 						rsolprog.StakeManagerAccountLengthDefault,
 					),
 					rsolprog.Initialize(
-						rSolProgramID,
+						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						stakePool,
 						feeRecipient,

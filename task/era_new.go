@@ -38,7 +38,7 @@ func (task *Task) EraNew() error {
 	rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 		Instructions: []types.Instruction{
 			rsolprog.EraNew(
-				task.rSolProgramID,
+				task.stakeManagerProgramID,
 				task.stakeManager,
 			),
 		},

@@ -14,8 +14,8 @@ type ConfigInit struct {
 	EndpointList []string // url for  rpc endpoint
 	KeystorePath string
 
-	RSolProgramID   string
-	MinterProgramID string
+	StakeManagerProgramID string
+	MintManagerProgramID  string
 
 	StakeManagerAccount string
 	MintManagerAccount  string
@@ -67,8 +67,8 @@ type ConfigStart struct {
 	LogFilePath  string
 	KeystorePath string
 
-	RSolProgramID   string
-	MinterProgramID string
+	StakeManagerProgramID string
+	MintManagerProgramID  string
 
 	StakeManagerAddress string
 	MintManagerAddress  string

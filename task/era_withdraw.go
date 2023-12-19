@@ -48,7 +48,7 @@ func (task *Task) EraWithdraw() error {
 		rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 			Instructions: []types.Instruction{
 				rsolprog.EraWithdraw(
-					task.rSolProgramID,
+					task.stakeManagerProgramID,
 					task.stakeManager,
 					task.stakePool,
 					stakeAccount,
