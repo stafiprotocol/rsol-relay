@@ -17,7 +17,21 @@ func (task *Task) EraWithdraw() error {
 		return err
 	}
 
-	if !needBond(&stakeManager.EraProcessData) {
+	couldWithdrawAccount := make([]common.PublicKey, 0)
+	for _, account := range stakeManager.SplitAccounts {
+		accountInfo, err := task.client.GetStakeActivation(
+			context.Background(),
+			account.ToBase58(),
+			client.GetStakeActivationConfig{})
+		if err != nil {
+			return err
+		}
+		if accountInfo.State == client.StakeActivationStateInactive {
+			couldWithdrawAccount = append(couldWithdrawAccount, account)
+		}
+	}
+
+	if len(couldWithdrawAccount) == 0 {
 		return nil
 	}
 
@@ -26,22 +40,6 @@ func (task *Task) EraWithdraw() error {
 	})
 	if err != nil {
 		fmt.Printf("get recent block hash error, err: %v\n", err)
-	}
-
-	epochInfo, err := task.client.GetEpochInfo(context.Background(), client.CommitmentFinalized)
-	if err != nil {
-		return err
-	}
-
-	couldWithdrawAccount := make([]common.PublicKey, 0)
-	for _, account := range stakeManager.SplitAccounts {
-		stakeAccount, err := task.client.GetStakeAccountInfo(context.Background(), account.ToBase58())
-		if err != nil {
-			return err
-		}
-		if stakeAccount.StakeAccount.Info.Stake.Delegation.DeactivationEpoch <= int64(epochInfo.Epoch) {
-			couldWithdrawAccount = append(couldWithdrawAccount, account)
-		}
 	}
 
 	for _, stakeAccount := range couldWithdrawAccount {
@@ -68,6 +66,9 @@ func (task *Task) EraWithdraw() error {
 		}
 
 		logrus.Infof("EraWithdraw send tx hash: %s", txHash)
+		if err := task.waitTx(txHash); err != nil {
+			return err
+		}
 	}
 	return nil
 }

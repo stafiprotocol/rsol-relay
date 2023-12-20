@@ -177,3 +177,25 @@ func needUpdataActive(data *rsolprog.EraProcessData) bool {
 func needUpdataRate(data *rsolprog.EraProcessData) bool {
 	return data.NeedUnbond == 0 && data.NeedBond == 0 && len(data.PendingStakeAccounts) == 0 && data.NewActive != 0 && data.OldActive != 0
 }
+
+func (t *Task) waitTx(txHash string) error {
+	retry := 0
+	for {
+		if retry > 20 {
+			return fmt.Errorf("waitTx %s reach retry limit", txHash)
+		}
+
+		tx, err := t.client.GetTransactionV2(context.Background(), txHash)
+		if err != nil {
+			logrus.Warnf("query tx %s failed: %s", txHash, err.Error())
+			time.Sleep(time.Second * 6)
+			retry++
+			continue
+		}
+
+		if tx.Meta.Err != nil {
+			return fmt.Errorf("%v", tx.Meta.Err)
+		}
+		return nil
+	}
+}

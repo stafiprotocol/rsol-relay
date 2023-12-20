@@ -54,5 +54,8 @@ func (task *Task) EraBond() error {
 	}
 
 	logrus.Infof("EraBond send tx hash: %s", txHash)
+	if err := task.waitTx(txHash); err != nil {
+		return err
+	}
 	return nil
 }

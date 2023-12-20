@@ -55,5 +55,8 @@ func (task *Task) EraNew() error {
 	}
 
 	logrus.Infof("EraNew send tx hash: %s", txHash)
+	if err := task.waitTx(txHash); err != nil {
+		return err
+	}
 	return nil
 }

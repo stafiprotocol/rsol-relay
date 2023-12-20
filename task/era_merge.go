@@ -17,6 +17,10 @@ func (task *Task) EraMerge() error {
 		return err
 	}
 
+	if !isEmpty(&stakeManager.EraProcessData) {
+		return nil
+	}
+
 	res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
 		Commitment: client.CommitmentConfirmed,
 	})
@@ -26,23 +30,31 @@ func (task *Task) EraMerge() error {
 
 	valToAccount := make(map[string]map[uint64][]common.PublicKey) // voter -> credit -> []stakeAccount
 	for _, stakeAccount := range stakeManager.StakeAccounts {
+		accountInfo, err := task.client.GetStakeActivation(
+			context.Background(),
+			stakeAccount.ToBase58(),
+			client.GetStakeActivationConfig{})
+		if err != nil {
+			return err
+		}
+		if accountInfo.State != client.StakeActivationStateActive {
+			continue
+		}
+
 		account, err := task.client.GetStakeAccountInfo(context.Background(), stakeAccount.ToBase58())
 		if err != nil {
 			return err
 		}
-		if account.StakeAccount.IsStakeAndNoDeactive() {
-			voter := account.StakeAccount.Info.Stake.Delegation.Voter.ToBase58()
-			credit := account.StakeAccount.Info.Stake.CreditsObserved
-			if valToAccount[voter] == nil {
-				valToAccount[voter] = make(map[uint64][]common.PublicKey)
-			}
-			if valToAccount[voter][credit] == nil {
-				valToAccount[voter][credit] = make([]common.PublicKey, 0)
-			}
-
-			valToAccount[voter][credit] = append(valToAccount[voter][credit], stakeAccount)
+		voter := account.StakeAccount.Info.Stake.Delegation.Voter.ToBase58()
+		credit := account.StakeAccount.Info.Stake.CreditsObserved
+		if valToAccount[voter] == nil {
+			valToAccount[voter] = make(map[uint64][]common.PublicKey)
+		}
+		if valToAccount[voter][credit] == nil {
+			valToAccount[voter][credit] = make([]common.PublicKey, 0)
 		}
 
+		valToAccount[voter][credit] = append(valToAccount[voter][credit], stakeAccount)
 	}
 
 	for _, creditToAccounts := range valToAccount {
@@ -73,6 +85,9 @@ func (task *Task) EraMerge() error {
 				}
 
 				logrus.Infof("EraMerge send tx hash: %s", txHash)
+				if err := task.waitTx(txHash); err != nil {
+					return err
+				}
 			}
 		}
 	}

@@ -56,5 +56,8 @@ func (task *Task) EraUpdataRate() error {
 	}
 
 	logrus.Infof("EraUpdateRate send tx hash: %s", txHash)
+	if err := task.waitTx(txHash); err != nil {
+		return err
+	}
 	return nil
 }
