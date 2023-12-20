@@ -2,8 +2,6 @@ module github.com/stafiprotocol/rsol-relay
 
 go 1.21
 
-toolchain go1.21.4
-
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
