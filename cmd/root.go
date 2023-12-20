@@ -42,6 +42,8 @@ func NewRootCmd() *cobra.Command {
 		minterInitCmd(),
 		startCmd(),
 		rsolSetRateLimitCmd(),
+		rsolSetUnbondingDurationCmd(),
+		rsolSetUnstakeFeeCommissionCmd(),
 	)
 
 	return rootCmd

@@ -1,6 +1,8 @@
 module github.com/stafiprotocol/rsol-relay
 
-go 1.20
+go 1.21
+
+toolchain go1.21.4
 
 require (
 	github.com/BurntSushi/toml v1.3.2
@@ -8,7 +10,7 @@ require (
 	github.com/mr-tron/base58 v1.2.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
-	github.com/stafiprotocol/solana-go-sdk v1.4.4
+	github.com/stafiprotocol/solana-go-sdk v1.4.6
 	golang.org/x/crypto v0.16.0
 	golang.org/x/term v0.15.0
 )

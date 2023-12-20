@@ -13,11 +13,11 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func rsolSetRateLimitCmd() *cobra.Command {
+func rsolSetUnbondingDurationCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-set-rate-change-limit",
-		Short: "Set rsol rate change limit",
+		Use:   "rsol-set-unbonding-duration",
+		Short: "Set rsol unbonding duration",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -77,7 +77,7 @@ func rsolSetRateLimitCmd() *cobra.Command {
 			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("RateChangeLimit:", cfg.RateChangeLimit)
+			fmt.Println("UnbondingDuration:", cfg.UnbondingDuration)
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -96,11 +96,11 @@ func rsolSetRateLimitCmd() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.SetRateChangeLimit(
+					rsolprog.SetUnbondingDuration(
 						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
-						cfg.RateChangeLimit,
+						cfg.UnbondingDuration,
 					),
 				},
 				Signers:         []types.Account{feePayerAccount, adminAccount},
@@ -115,7 +115,7 @@ func rsolSetRateLimitCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("SetRateChangeLimit txHash:", txHash)
+			fmt.Println("SetUnbondingDuration txHash:", txHash)
 
 			return nil
 		},

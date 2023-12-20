@@ -38,7 +38,9 @@ type ConfigInit struct {
 	TotalProtocolFee uint64
 
 	// set related
-	RateChangeLimit uint64
+	RateChangeLimit      uint64
+	UnbondingDuration    uint64
+	UnstakeFeeCommission uint64
 }
 
 func LoadInitConfig(configFilePath string) (*ConfigInit, error) {
