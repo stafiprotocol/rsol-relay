@@ -44,6 +44,7 @@ func NewRootCmd() *cobra.Command {
 		rsolSetRateLimitCmd(),
 		rsolSetUnbondingDurationCmd(),
 		rsolSetUnstakeFeeCommissionCmd(),
+		upgradeStakeManagerCmd(),
 	)
 
 	return rootCmd
