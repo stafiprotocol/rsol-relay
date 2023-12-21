@@ -53,9 +53,11 @@ func (task *Task) EraBond() error {
 		fmt.Printf("send tx error, err: %v\n", err)
 	}
 
-	logrus.Infof("EraBond send tx hash: %s", txHash)
 	if err := task.waitTx(txHash); err != nil {
 		return err
 	}
+
+	logrus.Infof("EraBond send tx hash: %s, stakeAccount: %s, bond: %d",
+		txHash, stakeAccount.PublicKey.ToBase58(), stakeManager.EraProcessData.NeedBond)
 	return nil
 }

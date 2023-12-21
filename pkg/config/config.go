@@ -98,6 +98,6 @@ func loadSysConfigStart(path string, config *ConfigStart) error {
 	if _, err := toml.DecodeFile(path, config); err != nil {
 		return err
 	}
-	fmt.Println("load config success")
+	fmt.Println("Load config success")
 	return nil
 }

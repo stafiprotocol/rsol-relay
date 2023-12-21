@@ -20,13 +20,6 @@ func (task *Task) EraUnbond() error {
 		return nil
 	}
 
-	res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
-		Commitment: client.CommitmentConfirmed,
-	})
-	if err != nil {
-		fmt.Printf("get recent block hash error, err: %v\n", err)
-	}
-
 	stakeAccount := stakeManager.StakeAccounts[0]
 	stakeAccountInfo, err := task.client.GetStakeAccountInfo(context.Background(), stakeAccount.ToBase58())
 	if err != nil {
@@ -34,6 +27,12 @@ func (task *Task) EraUnbond() error {
 	}
 	validator := stakeAccountInfo.StakeAccount.Info.Stake.Delegation.Voter
 
+	res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
+		Commitment: client.CommitmentConfirmed,
+	})
+	if err != nil {
+		fmt.Printf("get recent block hash error, err: %v\n", err)
+	}
 	splitStakeAccount := types.NewAccount() //random account
 
 	rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
@@ -61,9 +60,10 @@ func (task *Task) EraUnbond() error {
 		fmt.Printf("send tx error, err: %v\n", err)
 	}
 
-	logrus.Infof("EraUnbond send tx hash: %s", txHash)
 	if err := task.waitTx(txHash); err != nil {
 		return err
 	}
+	logrus.Infof("EraUnbond send tx hash: %s, splitStakeAccount: %s, unbond: %d",
+		txHash, splitStakeAccount.PublicKey.ToBase58(), stakeManager.EraProcessData.NeedBond)
 	return nil
 }

@@ -25,7 +25,7 @@ func startCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("config path: %s\n", configPath)
+			fmt.Printf("Config path: %s\n", configPath)
 
 			cfg, err := config.LoadStartConfig(configPath)
 			if err != nil {
@@ -33,10 +33,10 @@ func startCmd() *cobra.Command {
 			}
 
 			bts, _ := json.MarshalIndent(cfg, "", "  ")
-			fmt.Printf("config: \n%s\n", string(bts))
+			fmt.Printf("Config: \n%s\n", string(bts))
 		Out:
 			for {
-				fmt.Println("\ncheck config info, then press (y/n) to continue:")
+				fmt.Println("\nCheck config info, then press (y/n) to continue:")
 				var input string
 				fmt.Scanln(&input)
 				switch input {

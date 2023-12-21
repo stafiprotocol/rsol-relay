@@ -187,7 +187,7 @@ func (t *Task) waitTx(txHash string) error {
 
 		tx, err := t.client.GetTransactionV2(context.Background(), txHash)
 		if err != nil {
-			logrus.Warnf("query tx %s failed: %s", txHash, err.Error())
+			logrus.Debugf("query tx %s failed: %s", txHash, err.Error())
 			time.Sleep(time.Second * 6)
 			retry++
 			continue

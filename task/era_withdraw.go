@@ -35,14 +35,19 @@ func (task *Task) EraWithdraw() error {
 		return nil
 	}
 
-	res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
-		Commitment: client.CommitmentConfirmed,
-	})
-	if err != nil {
-		fmt.Printf("get recent block hash error, err: %v\n", err)
-	}
-
 	for _, stakeAccount := range couldWithdrawAccount {
+		stakeAccountInfo, err := task.client.GetStakeAccountInfo(context.Background(), stakeAccount.ToBase58())
+		if err != nil {
+			return err
+		}
+
+		res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
+			Commitment: client.CommitmentConfirmed,
+		})
+		if err != nil {
+			fmt.Printf("get recent block hash error, err: %v\n", err)
+		}
+
 		rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 			Instructions: []types.Instruction{
 				rsolprog.EraWithdraw(
@@ -65,10 +70,12 @@ func (task *Task) EraWithdraw() error {
 			fmt.Printf("send tx error, err: %v\n", err)
 		}
 
-		logrus.Infof("EraWithdraw send tx hash: %s", txHash)
 		if err := task.waitTx(txHash); err != nil {
 			return err
 		}
+
+		logrus.Infof("EraWithdraw send tx hash: %s, stakeAccount: %s, withdrawAmount: %d",
+			txHash, stakeAccount.ToBase58(), stakeAccountInfo.Lamports)
 	}
 	return nil
 }

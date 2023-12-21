@@ -31,7 +31,7 @@ func InitLogFile(logPath string) error {
 	logrus.AddHook(hook)
 	logrus.SetFormatter(defaultFormatterConsoleUse)
 
-	fmt.Printf("all logs are output in the %s directory\n", logPath)
+	fmt.Printf("All logs are output in the %s directory\n", logPath)
 	return nil
 }
 

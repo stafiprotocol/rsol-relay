@@ -54,9 +54,9 @@ func (task *Task) EraNew() error {
 		fmt.Printf("send tx error, err: %v\n", err)
 	}
 
-	logrus.Infof("EraNew send tx hash: %s", txHash)
 	if err := task.waitTx(txHash); err != nil {
 		return err
 	}
+	logrus.Infof("EraNew send tx hash: %s, newEra: %d", txHash, stakeManager.LatestEra+1)
 	return nil
 }

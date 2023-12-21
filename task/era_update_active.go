@@ -20,14 +20,21 @@ func (task *Task) EraUpdataActive() error {
 		return nil
 	}
 
+	eraActive := stakeManager.EraProcessData.OldActive
+	eraProcessActive := stakeManager.EraProcessData.NewActive
+
+	stakeAccount := stakeManager.EraProcessData.PendingStakeAccounts[0]
+	stakeAccountInfo, err := task.client.GetStakeAccountInfo(context.Background(), stakeAccount.ToBase58())
+	if err != nil {
+		return err
+	}
+
 	res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
 		Commitment: client.CommitmentConfirmed,
 	})
 	if err != nil {
 		fmt.Printf("get recent block hash error, err: %v\n", err)
 	}
-
-	stakeAccount := stakeManager.EraProcessData.PendingStakeAccounts[0]
 	rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 		Instructions: []types.Instruction{
 			rsolprog.EraUpdateActive(
@@ -49,9 +56,11 @@ func (task *Task) EraUpdataActive() error {
 		fmt.Printf("send tx error, err: %v\n", err)
 	}
 
-	logrus.Infof("EraUpdateActive send tx hash: %s", txHash)
 	if err := task.waitTx(txHash); err != nil {
 		return err
 	}
+
+	logrus.Infof("EraUpdateActive send tx hash: %s, stakeAccount: %s, stakeAccoutActive: %d, eraSnapshotActive: %d, eraProcessActive(old): %d, eraProcessActive(new): %d",
+		txHash, stakeAccount.ToBase58(), stakeAccountInfo.StakeAccount.Info.Stake.Delegation.Stake, eraActive, eraProcessActive, int64(eraProcessActive)+stakeAccountInfo.StakeAccount.Info.Stake.Delegation.Stake)
 	return nil
 }
