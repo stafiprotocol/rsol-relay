@@ -70,12 +70,20 @@ func (task *Task) EraWithdraw() error {
 			fmt.Printf("send tx error, err: %v\n", err)
 		}
 
+		logrus.Infof("EraWithdraw send tx hash: %s, stakeAccount: %s, withdrawAmount: %d",
+			txHash, stakeAccount.ToBase58(), stakeAccountInfo.Lamports)
+
 		if err := task.waitTx(txHash); err != nil {
+			_, err := task.client.GetStakeAccountInfo(context.Background(), stakeAccount.ToBase58())
+			if err != nil && err == client.ErrAccountNotFound {
+				logrus.Info("EraWithdraw success")
+				return nil
+			}
+
 			return err
 		}
 
-		logrus.Infof("EraWithdraw send tx hash: %s, stakeAccount: %s, withdrawAmount: %d",
-			txHash, stakeAccount.ToBase58(), stakeAccountInfo.Lamports)
+		logrus.Info("EraWithdraw success")
 	}
 	return nil
 }

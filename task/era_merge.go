@@ -52,43 +52,61 @@ func (task *Task) EraMerge() error {
 
 	for _, creditToAccounts := range valToAccount {
 		for _, accounts := range creditToAccounts {
-			if len(accounts) >= 2 {
-				res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
-					Commitment: client.CommitmentConfirmed,
-				})
-				if err != nil {
-					fmt.Printf("get recent block hash error, err: %v\n", err)
-				}
-				srcStakeAccount := accounts[1]
-				dstStakeAccount := accounts[0]
-				rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
-					Instructions: []types.Instruction{
-						rsolprog.EraMerge(
-							task.stakeManagerProgramID,
-							task.stakeManager,
-							srcStakeAccount,
-							dstStakeAccount,
-							task.stakePool,
-						),
-					},
-					Signers:         []types.Account{task.feePayerAccount},
-					FeePayer:        task.feePayerAccount.PublicKey,
-					RecentBlockHash: res.Blockhash,
-				})
-				if err != nil {
-					fmt.Printf("generate tx error, err: %v\n", err)
-				}
-				txHash, err := task.client.SendRawTransaction(context.Background(), rawTx)
-				if err != nil {
-					fmt.Printf("send tx error, err: %v\n", err)
-				}
+			if len(accounts) < 2 {
+				continue
+			}
+			res, err := task.client.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
+				Commitment: client.CommitmentConfirmed,
+			})
+			if err != nil {
+				fmt.Printf("get recent block hash error, err: %v\n", err)
+			}
+			srcStakeAccount := accounts[1]
+			dstStakeAccount := accounts[0]
+			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
+				Instructions: []types.Instruction{
+					rsolprog.EraMerge(
+						task.stakeManagerProgramID,
+						task.stakeManager,
+						srcStakeAccount,
+						dstStakeAccount,
+						task.stakePool,
+					),
+				},
+				Signers:         []types.Account{task.feePayerAccount},
+				FeePayer:        task.feePayerAccount.PublicKey,
+				RecentBlockHash: res.Blockhash,
+			})
+			if err != nil {
+				fmt.Printf("generate tx error, err: %v\n", err)
+			}
+			txHash, err := task.client.SendRawTransaction(context.Background(), rawTx)
+			if err != nil {
+				fmt.Printf("send tx error, err: %v\n", err)
+			}
 
-				if err := task.waitTx(txHash); err != nil {
+			logrus.Infof("EraMerge send tx hash: %s, srcStakeAccount: %s, dstStakeAccount: %s",
+				txHash, srcStakeAccount.ToBase58(), dstStakeAccount.ToBase58())
+			if err := task.waitTx(txHash); err != nil {
+				stakeManagerNew, err := task.client.GetStakeManager(context.Background(), task.cfg.StakeManagerAddress)
+				if err != nil {
 					return err
 				}
-				logrus.Infof("EraMerge send tx hash: %s, srcStakeAccount: %s, dstStakeAccount: %s",
-					txHash, srcStakeAccount.ToBase58(), dstStakeAccount.ToBase58())
+				stakeAccountExist := make(map[string]bool)
+				for _, stakeAccount := range stakeManagerNew.StakeAccounts {
+					stakeAccountExist[stakeAccount.ToBase58()] = true
+				}
+
+				if !stakeAccountExist[srcStakeAccount.ToBase58()] || !stakeAccountExist[dstStakeAccount.ToBase58()] {
+					logrus.Info("EraMerge success")
+					continue
+				}
+
+				return err
 			}
+
+			logrus.Info("EraMerge success")
+
 		}
 	}
 

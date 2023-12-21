@@ -55,14 +55,25 @@ func (task *Task) EraUpdataRate() error {
 		fmt.Printf("send tx error, err: %v\n", err)
 	}
 
+	logrus.Infof("EraUpdateRate send tx hash: %s, pipelineActive: %d, eraSnapshotActive: %d, eraProcessActive: %d, rate(old): %d",
+		txHash, stakeManager.Active, stakeManager.EraProcessData.OldActive, stakeManager.EraProcessData.NewActive, stakeManager.Rate)
 	if err := task.waitTx(txHash); err != nil {
+		stakeManagerNew, err := task.client.GetStakeManager(context.Background(), task.cfg.StakeManagerAddress)
+		if err != nil {
+			return err
+		}
+
+		if !needUpdataRate(&stakeManagerNew.EraProcessData) {
+			logrus.Infof("EraUpdateRate success, rate(new): %d", stakeManagerNew.Rate)
+			return nil
+		}
 		return err
 	}
 	stakeManagerNew, err := task.client.GetStakeManager(context.Background(), task.cfg.StakeManagerAddress)
 	if err != nil {
 		return err
 	}
-	logrus.Infof("EraUpdateRate send tx hash: %s, pipelineActive: %d, eraSnapshotActive: %d, eraProcessActive: %d, rate(old): %d, rate(new): %d",
-		txHash, stakeManager.Active, stakeManager.EraProcessData.OldActive, stakeManager.EraProcessData.NewActive, stakeManager.Rate, stakeManagerNew.Rate)
+
+	logrus.Infof("EraUpdateRate success, rate(new): %d", stakeManagerNew.Rate)
 	return nil
 }

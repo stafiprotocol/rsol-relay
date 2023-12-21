@@ -20,7 +20,7 @@ func (task *Task) EraUnbond() error {
 		return nil
 	}
 
-	stakeAccount := stakeManager.StakeAccounts[0]
+	stakeAccount := stakeManager.StakeAccounts[0] // use first
 	stakeAccountInfo, err := task.client.GetStakeAccountInfo(context.Background(), stakeAccount.ToBase58())
 	if err != nil {
 		return err
@@ -60,10 +60,21 @@ func (task *Task) EraUnbond() error {
 		fmt.Printf("send tx error, err: %v\n", err)
 	}
 
-	if err := task.waitTx(txHash); err != nil {
-		return err
-	}
 	logrus.Infof("EraUnbond send tx hash: %s, splitStakeAccount: %s, unbond: %d",
 		txHash, splitStakeAccount.PublicKey.ToBase58(), stakeManager.EraProcessData.NeedBond)
+	if err := task.waitTx(txHash); err != nil {
+		stakeManagerNew, err := task.client.GetStakeManager(context.Background(), task.cfg.StakeManagerAddress)
+		if err != nil {
+			return err
+		}
+		if stakeManagerNew.EraProcessData.NeedUnbond < stakeManager.EraProcessData.NeedUnbond {
+			logrus.Info("EraUnbond success")
+			return nil
+		}
+
+		return err
+	}
+
+	logrus.Info("EraUnbond success")
 	return nil
 }

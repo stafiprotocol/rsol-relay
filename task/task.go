@@ -181,7 +181,7 @@ func needUpdataRate(data *rsolprog.EraProcessData) bool {
 func (t *Task) waitTx(txHash string) error {
 	retry := 0
 	for {
-		if retry > 20 {
+		if retry > 50 {
 			return fmt.Errorf("waitTx %s reach retry limit", txHash)
 		}
 

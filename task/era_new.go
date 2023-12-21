@@ -54,9 +54,20 @@ func (task *Task) EraNew() error {
 		fmt.Printf("send tx error, err: %v\n", err)
 	}
 
+	logrus.Infof("EraNew send tx hash: %s, newEra: %d", txHash, stakeManager.LatestEra+1)
 	if err := task.waitTx(txHash); err != nil {
+		stakeManagerNew, err := task.client.GetStakeManager(context.Background(), task.cfg.StakeManagerAddress)
+		if err != nil {
+			return err
+		}
+		if stakeManagerNew.LatestEra > stakeManager.LatestEra {
+			logrus.Infof("EraNew success")
+			return nil
+		}
+
 		return err
 	}
-	logrus.Infof("EraNew send tx hash: %s, newEra: %d", txHash, stakeManager.LatestEra+1)
+	logrus.Infof("EraNew success")
+
 	return nil
 }
