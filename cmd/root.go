@@ -33,21 +33,46 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd.AddCommand(
+		keysCmd(),
+		adminCmd(),
+		startCmd(),
 		versionCmd(),
+	)
+
+	return rootCmd
+}
+
+func keysCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "keys",
+		Short: "Manage keystore",
+	}
+
+	cmd.AddCommand(
 		vaultAddCmd(),
 		vaultCreateCmd(),
 		vaultExportCmd(),
 		vaultListCmd(),
+	)
+	return cmd
+}
+
+func adminCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "admin",
+		Short: "Admin operate",
+	}
+
+	cmd.AddCommand(
+
 		rsolInitCmd(),
 		minterInitCmd(),
-		startCmd(),
 		rsolSetRateLimitCmd(),
 		rsolSetUnbondingDurationCmd(),
 		rsolSetUnstakeFeeCommissionCmd(),
 		upgradeStakeManagerCmd(),
 	)
-
-	return rootCmd
+	return cmd
 }
 
 func Execute() {

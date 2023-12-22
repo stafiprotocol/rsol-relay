@@ -23,7 +23,7 @@ func vaultListCmd() *cobra.Command {
 
 	// vaultListCmd represents the list command
 	var cmd = &cobra.Command{
-		Use:   "keys-list",
+		Use:   "list",
 		Short: "List public keys inside a Solana vault.",
 		Long: `List public keys inside a Solana vault.
 

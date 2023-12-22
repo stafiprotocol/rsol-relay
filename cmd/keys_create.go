@@ -25,7 +25,7 @@ import (
 func vaultCreateCmd() *cobra.Command {
 	// vaultCreateCmd represents the create command
 	cmd := &cobra.Command{
-		Use:   "keys-create",
+		Use:   "create",
 		Short: "Create a new encrypted Solana keys vault",
 		Long: `Create a new encrypted Solana keys vault.
 
@@ -34,7 +34,7 @@ securely sign transactions.
 
 You can create a passphrase protected vault with:
 
-    cmd vault create --keys=2
+    rsol-relay keys create --keys=2
 
 This uses the default --vault-type=passphrase
 

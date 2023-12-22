@@ -23,7 +23,7 @@ import (
 
 func vaultAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "keys-add",
+		Use:   "add",
 		Short: "Add private keys to an existing vault taking input from the shell",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
