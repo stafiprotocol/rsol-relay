@@ -64,13 +64,14 @@ func adminCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-
 		rsolInitCmd(),
 		minterInitCmd(),
 		rsolSetRateLimitCmd(),
 		rsolSetUnbondingDurationCmd(),
 		rsolSetUnstakeFeeCommissionCmd(),
 		upgradeStakeManagerCmd(),
+		rsolAddValidator(),
+		rsolRemoveValidator(),
 	)
 	return cmd
 }
