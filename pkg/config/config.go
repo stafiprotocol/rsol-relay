@@ -43,6 +43,7 @@ type ConfigInit struct {
 	UnstakeFeeCommission   uint64
 	AddValidatorAddress    string
 	RemoveValidatorAddress string
+	MintAuthorities        []string
 }
 
 func LoadInitConfig(configFilePath string) (*ConfigInit, error) {

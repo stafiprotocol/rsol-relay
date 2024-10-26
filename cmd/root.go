@@ -72,6 +72,7 @@ func adminCmd() *cobra.Command {
 		upgradeStakeManagerCmd(),
 		rsolAddValidator(),
 		rsolRemoveValidator(),
+		mintManagerSetMintAuth(),
 	)
 	return cmd
 }
