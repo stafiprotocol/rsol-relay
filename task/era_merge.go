@@ -23,10 +23,9 @@ func (task *Task) EraMerge() error {
 
 	valToAccount := make(map[string]map[uint64][]common.PublicKey) // voter -> credit -> []stakeAccount
 	for _, stakeAccount := range stakeManager.StakeAccounts {
-		accountInfo, err := task.client.GetStakeActivation(
+		accountInfo, err := task.client.CalStakeActivation(
 			context.Background(),
-			stakeAccount.ToBase58(),
-			client.GetStakeActivationConfig{})
+			stakeAccount.ToBase58())
 		if err != nil {
 			return err
 		}

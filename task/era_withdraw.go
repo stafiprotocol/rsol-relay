@@ -19,10 +19,9 @@ func (task *Task) EraWithdraw() error {
 
 	couldWithdrawAccount := make([]common.PublicKey, 0)
 	for _, account := range stakeManager.SplitAccounts {
-		accountInfo, err := task.client.GetStakeActivation(
+		accountInfo, err := task.client.CalStakeActivation(
 			context.Background(),
-			account.ToBase58(),
-			client.GetStakeActivationConfig{})
+			account.ToBase58())
 		if err != nil {
 			return err
 		}
