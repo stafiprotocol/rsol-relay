@@ -13,11 +13,11 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func rsolSetRateLimitCmd() *cobra.Command {
+func upgradeStakeManagerCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-set-rate-change-limit",
-		Short: "Set rsol rate change limit",
+		Use:   "upgrade",
+		Short: "Upgrade stake manager",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -77,7 +77,6 @@ func rsolSetRateLimitCmd() *cobra.Command {
 			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("RateChangeLimit:", cfg.RateChangeLimit)
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -96,11 +95,10 @@ func rsolSetRateLimitCmd() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.SetRateChangeLimit(
+					rsolprog.UpgradeStakeManager(
 						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
-						cfg.RateChangeLimit,
 					),
 				},
 				Signers:         []types.Account{feePayerAccount, adminAccount},
@@ -115,7 +113,7 @@ func rsolSetRateLimitCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("SetRateChangeLimit txHash:", txHash)
+			fmt.Println("UpgradeStakeManager txHash:", txHash)
 
 			return nil
 		},

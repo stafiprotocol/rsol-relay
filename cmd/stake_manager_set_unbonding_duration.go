@@ -13,11 +13,11 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func rsolRemoveValidator() *cobra.Command {
+func stakeManagerSetUnbondingDurationCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-remove-validator",
-		Short: "Remove validator",
+		Use:   "set-unbonding-duration",
+		Short: "Set unbonding duration",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -74,12 +74,10 @@ func rsolRemoveValidator() *cobra.Command {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
 
-			removeValidatorPubkey := common.PublicKeyFromString(cfg.RemoveValidatorAddress)
-
 			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("removeValidatorAddress:", cfg.RemoveValidatorAddress)
+			fmt.Println("UnbondingDuration:", cfg.UnbondingDuration)
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -98,11 +96,11 @@ func rsolRemoveValidator() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.RemoveValidator(
+					rsolprog.SetUnbondingDuration(
 						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
-						removeValidatorPubkey,
+						cfg.UnbondingDuration,
 					),
 				},
 				Signers:         []types.Account{feePayerAccount, adminAccount},
@@ -117,7 +115,7 @@ func rsolRemoveValidator() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("RemoveValidator txHash:", txHash)
+			fmt.Println("SetUnbondingDuration txHash:", txHash)
 
 			return nil
 		},

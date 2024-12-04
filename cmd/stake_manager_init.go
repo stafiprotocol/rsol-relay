@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/stafiprotocol/rsol-relay/pkg/config"
@@ -10,14 +11,17 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/client"
 	"github.com/stafiprotocol/solana-go-sdk/common"
 	"github.com/stafiprotocol/solana-go-sdk/rsolprog"
+	"github.com/stafiprotocol/solana-go-sdk/sysprog"
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func rsolSetUnbondingDurationCmd() *cobra.Command {
+var stakePoolSeed = []byte("pool_seed")
+
+func stakeManagerInitCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-set-unbonding-duration",
-		Short: "Set rsol unbonding duration",
+		Use:   "init",
+		Short: "Init stake manager",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -59,7 +63,10 @@ func rsolSetUnbondingDurationCmd() *cobra.Command {
 				fmt.Printf("get recent block hash error, err: %v\n", err)
 			}
 
+			rSolMint := common.PublicKeyFromString(cfg.RSolMintAddress)
 			stakeManagerProgramID := common.PublicKeyFromString(cfg.StakeManagerProgramID)
+			feeRecipient := common.PublicKeyFromString(cfg.FeeRecipientAddress)
+			validator := common.PublicKeyFromString(cfg.ValidatorAddress)
 
 			feePayerAccount, exist := accountMap[cfg.FeePayerAccount]
 			if !exist {
@@ -74,13 +81,30 @@ func rsolSetUnbondingDurationCmd() *cobra.Command {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
 
+			stakePool, _, err := common.FindProgramAddress([][]byte{stakeManagerAccount.PublicKey.Bytes(), stakePoolSeed}, stakeManagerProgramID)
+			if err != nil {
+				return err
+			}
+
+			stakePoolRent, err := c.GetMinimumBalanceForRentExemption(context.Background(), 0)
+			if err != nil {
+				return err
+			}
+
+			stakeManagerRent, err := c.GetMinimumBalanceForRentExemption(context.Background(), rsolprog.StakeManagerAccountLengthDefault)
+			if err != nil {
+				return err
+			}
+
 			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
+			fmt.Println("stakePool account:", stakePool.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("UnbondingDuration:", cfg.UnbondingDuration)
+			fmt.Println("stake pool rent:", stakePoolRent)
+			fmt.Println("stake manager rent:", stakeManagerRent)
 		Out:
 			for {
-				fmt.Println("\ncheck config info, then press (y/n) to continue:")
+				fmt.Println("\ncheck account info, then press (y/n) to continue:")
 				var input string
 				fmt.Scanln(&input)
 				switch input {
@@ -96,14 +120,39 @@ func rsolSetUnbondingDurationCmd() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.SetUnbondingDuration(
+					sysprog.Transfer(
+						feePayerAccount.PublicKey,
+						stakePool,
+						stakePoolRent,
+					),
+					sysprog.CreateAccount(
+						feePayerAccount.PublicKey,
+						stakeManagerAccount.PublicKey,
+						stakeManagerProgramID,
+						stakeManagerRent,
+						rsolprog.StakeManagerAccountLengthDefault,
+					),
+					rsolprog.Initialize(
 						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
+						stakePool,
+						feeRecipient,
+						rSolMint,
 						adminAccount.PublicKey,
-						cfg.UnbondingDuration,
+						rsolprog.InitializeData{
+							RSolMint:         rSolMint,
+							Validator:        validator,
+							Bond:             cfg.Bond,
+							Unbond:           cfg.Unbond,
+							Active:           cfg.Active,
+							LatestEra:        cfg.LatestEra,
+							Rate:             cfg.Rate,
+							TotalRSolSupply:  cfg.TotalRSolSupply,
+							TotalProtocolFee: cfg.TotalProtocolFee,
+						},
 					),
 				},
-				Signers:         []types.Account{feePayerAccount, adminAccount},
+				Signers:         []types.Account{feePayerAccount, stakeManagerAccount, adminAccount},
 				FeePayer:        feePayerAccount.PublicKey,
 				RecentBlockHash: res.Blockhash,
 			})
@@ -115,7 +164,25 @@ func rsolSetUnbondingDurationCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("SetUnbondingDuration txHash:", txHash)
+			fmt.Println("createStakeManager txHash:", txHash)
+
+			retry := 0
+			for {
+				if retry > 60 {
+					return fmt.Errorf("tx %s failed", txHash)
+				}
+				_, err := c.GetAccountInfo(context.Background(), cfg.StakeManagerAccount, client.GetAccountInfoConfig{
+					Encoding:  client.GetAccountInfoConfigEncodingBase64,
+					DataSlice: client.GetAccountInfoConfigDataSlice{},
+				})
+				if err != nil {
+					retry++
+					time.Sleep(time.Second)
+					continue
+				}
+
+				break
+			}
 
 			return nil
 		},

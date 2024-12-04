@@ -10,18 +10,18 @@ import (
 	"github.com/stafiprotocol/rsol-relay/pkg/vault"
 	"github.com/stafiprotocol/solana-go-sdk/client"
 	"github.com/stafiprotocol/solana-go-sdk/common"
-	"github.com/stafiprotocol/solana-go-sdk/rsolprog"
+	"github.com/stafiprotocol/solana-go-sdk/minterprog"
 	"github.com/stafiprotocol/solana-go-sdk/sysprog"
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-var stakePoolSeed = []byte("pool_seed")
+var mintAuthoritySeed = []byte("mint")
 
-func rsolInitCmd() *cobra.Command {
+func mintManagerInitCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-init",
-		Short: "Init rsol",
+		Use:   "init",
+		Short: "Init mint manager",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -64,9 +64,9 @@ func rsolInitCmd() *cobra.Command {
 			}
 
 			rSolMint := common.PublicKeyFromString(cfg.RSolMintAddress)
+			mintManagerProgramID := common.PublicKeyFromString(cfg.MintManagerProgramID)
 			stakeManagerProgramID := common.PublicKeyFromString(cfg.StakeManagerProgramID)
-			feeRecipient := common.PublicKeyFromString(cfg.FeeRecipientAddress)
-			validator := common.PublicKeyFromString(cfg.ValidatorAddress)
+			bridgeSigner := common.PublicKeyFromString(cfg.BridgeSignerAddress)
 
 			feePayerAccount, exist := accountMap[cfg.FeePayerAccount]
 			if !exist {
@@ -80,28 +80,33 @@ func rsolInitCmd() *cobra.Command {
 			if !exist {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
+			mintManagerAccount, exist := accountMap[cfg.MintManagerAccount]
+			if !exist {
+				return fmt.Errorf("minterStakeManager not exit in vault")
+			}
 
 			stakePool, _, err := common.FindProgramAddress([][]byte{stakeManagerAccount.PublicKey.Bytes(), stakePoolSeed}, stakeManagerProgramID)
 			if err != nil {
 				return err
 			}
 
-			stakePoolRent, err := c.GetMinimumBalanceForRentExemption(context.Background(), 0)
+			minterManagerRent, err := c.GetMinimumBalanceForRentExemption(context.Background(), minterprog.MinterManagerAccountLengthDefault)
 			if err != nil {
 				return err
 			}
 
-			stakeManagerRent, err := c.GetMinimumBalanceForRentExemption(context.Background(), rsolprog.StakeManagerAccountLengthDefault)
+			extMintAthorities := []common.PublicKey{stakePool, bridgeSigner}
+
+			mintAuthority, _, err := common.FindProgramAddress([][]byte{mintManagerAccount.PublicKey.Bytes(), mintAuthoritySeed}, mintManagerProgramID)
 			if err != nil {
 				return err
 			}
 
-			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
-			fmt.Println("stakePool account:", stakePool.ToBase58())
+			fmt.Println("mintManager account:", mintManagerAccount.PublicKey.ToBase58())
+			fmt.Println("mintAuthority", mintAuthority.ToBase58())
+			fmt.Println("stakepool", stakePool.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("stake pool rent:", stakePoolRent)
-			fmt.Println("stake manager rent:", stakeManagerRent)
 		Out:
 			for {
 				fmt.Println("\ncheck account info, then press (y/n) to continue:")
@@ -120,39 +125,23 @@ func rsolInitCmd() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					sysprog.Transfer(
-						feePayerAccount.PublicKey,
-						stakePool,
-						stakePoolRent,
-					),
 					sysprog.CreateAccount(
 						feePayerAccount.PublicKey,
-						stakeManagerAccount.PublicKey,
-						stakeManagerProgramID,
-						stakeManagerRent,
-						rsolprog.StakeManagerAccountLengthDefault,
+						mintManagerAccount.PublicKey,
+						mintManagerProgramID,
+						minterManagerRent,
+						minterprog.MinterManagerAccountLengthDefault,
 					),
-					rsolprog.Initialize(
-						stakeManagerProgramID,
-						stakeManagerAccount.PublicKey,
-						stakePool,
-						feeRecipient,
+					minterprog.Initialize(
+						mintManagerProgramID,
+						mintManagerAccount.PublicKey,
+						mintAuthority,
 						rSolMint,
 						adminAccount.PublicKey,
-						rsolprog.InitializeData{
-							RSolMint:         rSolMint,
-							Validator:        validator,
-							Bond:             cfg.Bond,
-							Unbond:           cfg.Unbond,
-							Active:           cfg.Active,
-							LatestEra:        cfg.LatestEra,
-							Rate:             cfg.Rate,
-							TotalRSolSupply:  cfg.TotalRSolSupply,
-							TotalProtocolFee: cfg.TotalProtocolFee,
-						},
+						extMintAthorities,
 					),
 				},
-				Signers:         []types.Account{feePayerAccount, stakeManagerAccount, adminAccount},
+				Signers:         []types.Account{feePayerAccount, mintManagerAccount, adminAccount},
 				FeePayer:        feePayerAccount.PublicKey,
 				RecentBlockHash: res.Blockhash,
 			})
@@ -164,14 +153,13 @@ func rsolInitCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("createStakeManager txHash:", txHash)
-
+			fmt.Println("createMinterManager txHash:", txHash)
 			retry := 0
 			for {
 				if retry > 60 {
 					return fmt.Errorf("tx %s failed", txHash)
 				}
-				_, err := c.GetAccountInfo(context.Background(), cfg.StakeManagerAccount, client.GetAccountInfoConfig{
+				_, err := c.GetAccountInfo(context.Background(), mintManagerAccount.PublicKey.ToBase58(), client.GetAccountInfoConfig{
 					Encoding:  client.GetAccountInfoConfigEncodingBase64,
 					DataSlice: client.GetAccountInfoConfigDataSlice{},
 				})

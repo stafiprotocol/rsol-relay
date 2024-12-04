@@ -16,7 +16,7 @@ import (
 func mintManagerSetMintAuth() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "mint-manager-set-mint-auth",
+		Use:   "set-mint-auth",
 		Short: "Set ext mint authorities",
 
 		RunE: func(cmd *cobra.Command, args []string) error {

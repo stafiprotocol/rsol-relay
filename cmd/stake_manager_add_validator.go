@@ -13,11 +13,11 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func upgradeStakeManagerCmd() *cobra.Command {
+func stakeManagerAddValidator() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-upgrade-stake-manager",
-		Short: "Upgrade stake manager",
+		Use:   "add-validator",
+		Short: "Add validator",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -74,9 +74,12 @@ func upgradeStakeManagerCmd() *cobra.Command {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
 
+			addValidatorPubkey := common.PublicKeyFromString(cfg.AddValidatorAddress)
+
 			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
+			fmt.Println("addValidatorAddress:", cfg.AddValidatorAddress)
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -95,10 +98,11 @@ func upgradeStakeManagerCmd() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.UpgradeStakeManager(
+					rsolprog.AddValidator(
 						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
+						addValidatorPubkey,
 					),
 				},
 				Signers:         []types.Account{feePayerAccount, adminAccount},
@@ -113,7 +117,7 @@ func upgradeStakeManagerCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("UpgradeStakeManager txHash:", txHash)
+			fmt.Println("AddValidator txHash:", txHash)
 
 			return nil
 		},

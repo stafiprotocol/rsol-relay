@@ -3,25 +3,21 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/stafiprotocol/rsol-relay/pkg/config"
 	"github.com/stafiprotocol/rsol-relay/pkg/vault"
 	"github.com/stafiprotocol/solana-go-sdk/client"
 	"github.com/stafiprotocol/solana-go-sdk/common"
-	"github.com/stafiprotocol/solana-go-sdk/minterprog"
-	"github.com/stafiprotocol/solana-go-sdk/sysprog"
+	"github.com/stafiprotocol/solana-go-sdk/rsolprog"
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-var mintAuthoritySeed = []byte("mint")
-
-func minterInitCmd() *cobra.Command {
+func stakeManagerRemoveValidator() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "minter-init",
-		Short: "Init minter",
+		Use:   "remove-validator",
+		Short: "Remove validator",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -63,10 +59,7 @@ func minterInitCmd() *cobra.Command {
 				fmt.Printf("get recent block hash error, err: %v\n", err)
 			}
 
-			rSolMint := common.PublicKeyFromString(cfg.RSolMintAddress)
-			mintManagerProgramID := common.PublicKeyFromString(cfg.MintManagerProgramID)
 			stakeManagerProgramID := common.PublicKeyFromString(cfg.StakeManagerProgramID)
-			bridgeSigner := common.PublicKeyFromString(cfg.BridgeSignerAddress)
 
 			feePayerAccount, exist := accountMap[cfg.FeePayerAccount]
 			if !exist {
@@ -80,36 +73,16 @@ func minterInitCmd() *cobra.Command {
 			if !exist {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
-			mintManagerAccount, exist := accountMap[cfg.MintManagerAccount]
-			if !exist {
-				return fmt.Errorf("minterStakeManager not exit in vault")
-			}
 
-			stakePool, _, err := common.FindProgramAddress([][]byte{stakeManagerAccount.PublicKey.Bytes(), stakePoolSeed}, stakeManagerProgramID)
-			if err != nil {
-				return err
-			}
+			removeValidatorPubkey := common.PublicKeyFromString(cfg.RemoveValidatorAddress)
 
-			minterManagerRent, err := c.GetMinimumBalanceForRentExemption(context.Background(), minterprog.MinterManagerAccountLengthDefault)
-			if err != nil {
-				return err
-			}
-
-			extMintAthorities := []common.PublicKey{stakePool, bridgeSigner}
-
-			mintAuthority, _, err := common.FindProgramAddress([][]byte{mintManagerAccount.PublicKey.Bytes(), mintAuthoritySeed}, mintManagerProgramID)
-			if err != nil {
-				return err
-			}
-
-			fmt.Println("mintManager account:", mintManagerAccount.PublicKey.ToBase58())
-			fmt.Println("mintAuthority", mintAuthority.ToBase58())
-			fmt.Println("stakepool", stakePool.ToBase58())
+			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
+			fmt.Println("removeValidatorAddress:", cfg.RemoveValidatorAddress)
 		Out:
 			for {
-				fmt.Println("\ncheck account info, then press (y/n) to continue:")
+				fmt.Println("\ncheck config info, then press (y/n) to continue:")
 				var input string
 				fmt.Scanln(&input)
 				switch input {
@@ -125,23 +98,14 @@ func minterInitCmd() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					sysprog.CreateAccount(
-						feePayerAccount.PublicKey,
-						mintManagerAccount.PublicKey,
-						mintManagerProgramID,
-						minterManagerRent,
-						minterprog.MinterManagerAccountLengthDefault,
-					),
-					minterprog.Initialize(
-						mintManagerProgramID,
-						mintManagerAccount.PublicKey,
-						mintAuthority,
-						rSolMint,
+					rsolprog.RemoveValidator(
+						stakeManagerProgramID,
+						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
-						extMintAthorities,
+						removeValidatorPubkey,
 					),
 				},
-				Signers:         []types.Account{feePayerAccount, mintManagerAccount, adminAccount},
+				Signers:         []types.Account{feePayerAccount, adminAccount},
 				FeePayer:        feePayerAccount.PublicKey,
 				RecentBlockHash: res.Blockhash,
 			})
@@ -153,24 +117,7 @@ func minterInitCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("createMinterManager txHash:", txHash)
-			retry := 0
-			for {
-				if retry > 60 {
-					return fmt.Errorf("tx %s failed", txHash)
-				}
-				_, err := c.GetAccountInfo(context.Background(), mintManagerAccount.PublicKey.ToBase58(), client.GetAccountInfoConfig{
-					Encoding:  client.GetAccountInfoConfigEncodingBase64,
-					DataSlice: client.GetAccountInfoConfigDataSlice{},
-				})
-				if err != nil {
-					retry++
-					time.Sleep(time.Second)
-					continue
-				}
-
-				break
-			}
+			fmt.Println("RemoveValidator txHash:", txHash)
 
 			return nil
 		},

@@ -13,11 +13,11 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func rsolSetUnstakeFeeCommissionCmd() *cobra.Command {
+func stakeManagerSetRateLimitCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-set-unstake-fee-commission",
-		Short: "Set rsol unstake fee commission",
+		Use:   "set-rate-change-limit",
+		Short: "Set rate change limit",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -77,7 +77,7 @@ func rsolSetUnstakeFeeCommissionCmd() *cobra.Command {
 			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("UnstakeFeeCommission:", cfg.UnstakeFeeCommission)
+			fmt.Println("RateChangeLimit:", cfg.RateChangeLimit)
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -96,11 +96,11 @@ func rsolSetUnstakeFeeCommissionCmd() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.SetUnstakeFeeCommission(
+					rsolprog.SetRateChangeLimit(
 						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
-						cfg.UnstakeFeeCommission,
+						cfg.RateChangeLimit,
 					),
 				},
 				Signers:         []types.Account{feePayerAccount, adminAccount},
@@ -115,7 +115,7 @@ func rsolSetUnstakeFeeCommissionCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("SetUnstakeFeeCommission txHash:", txHash)
+			fmt.Println("SetRateChangeLimit txHash:", txHash)
 
 			return nil
 		},

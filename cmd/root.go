@@ -34,7 +34,8 @@ func NewRootCmd() *cobra.Command {
 
 	rootCmd.AddCommand(
 		keysCmd(),
-		adminCmd(),
+		mintManagerCmd(),
+		stakeManagerCmd(),
 		startCmd(),
 		versionCmd(),
 	)
@@ -57,21 +58,32 @@ func keysCmd() *cobra.Command {
 	return cmd
 }
 
-func adminCmd() *cobra.Command {
+func stakeManagerCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "admin",
-		Short: "Admin operate",
+		Use:   "stake-manager",
+		Short: "stake-manager settings",
 	}
 
 	cmd.AddCommand(
-		rsolInitCmd(),
-		minterInitCmd(),
-		rsolSetRateLimitCmd(),
-		rsolSetUnbondingDurationCmd(),
-		rsolSetUnstakeFeeCommissionCmd(),
+		stakeManagerInitCmd(),
+		stakeManagerSetRateLimitCmd(),
+		stakeManagerSetUnbondingDurationCmd(),
+		stakeManagerSetUnstakeFeeCommissionCmd(),
 		upgradeStakeManagerCmd(),
-		rsolAddValidator(),
-		rsolRemoveValidator(),
+		stakeManagerAddValidator(),
+		stakeManagerRemoveValidator(),
+	)
+	return cmd
+}
+
+func mintManagerCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "mint-manager",
+		Short: "mint-manager settings",
+	}
+
+	cmd.AddCommand(
+		mintManagerInitCmd(),
 		mintManagerSetMintAuth(),
 	)
 	return cmd

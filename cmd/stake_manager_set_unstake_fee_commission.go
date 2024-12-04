@@ -13,11 +13,11 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func rsolAddValidator() *cobra.Command {
+func stakeManagerSetUnstakeFeeCommissionCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "rsol-add-validator",
-		Short: "Add validator",
+		Use:   "set-unstake-fee-commission",
+		Short: "Set unstake fee commission",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -74,12 +74,10 @@ func rsolAddValidator() *cobra.Command {
 				return fmt.Errorf("stakeManager not exit in vault")
 			}
 
-			addValidatorPubkey := common.PublicKeyFromString(cfg.AddValidatorAddress)
-
 			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("addValidatorAddress:", cfg.AddValidatorAddress)
+			fmt.Println("UnstakeFeeCommission:", cfg.UnstakeFeeCommission)
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -98,11 +96,11 @@ func rsolAddValidator() *cobra.Command {
 
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.AddValidator(
+					rsolprog.SetUnstakeFeeCommission(
 						stakeManagerProgramID,
 						stakeManagerAccount.PublicKey,
 						adminAccount.PublicKey,
-						addValidatorPubkey,
+						cfg.UnstakeFeeCommission,
 					),
 				},
 				Signers:         []types.Account{feePayerAccount, adminAccount},
@@ -117,7 +115,7 @@ func rsolAddValidator() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("AddValidator txHash:", txHash)
+			fmt.Println("SetUnstakeFeeCommission txHash:", txHash)
 
 			return nil
 		},
