@@ -13,11 +13,11 @@ import (
 	"github.com/stafiprotocol/solana-go-sdk/types"
 )
 
-func stakeManagerSetUnbondingDurationCmd() *cobra.Command {
+func stakeManagerTransferFeeRecipientCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "set-unbonding-duration",
-		Short: "Set unbonding duration",
+		Use:   "transfer-fee-recipient",
+		Short: "Transfer fee recipient",
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configPath, err := cmd.Flags().GetString(flagConfigPath)
@@ -43,21 +43,12 @@ func stakeManagerSetUnbondingDurationCmd() *cobra.Command {
 				return fmt.Errorf("opening: %w", err)
 			}
 
-			privateKeyMap := make(map[string]vault.PrivateKey)
 			accountMap := make(map[string]types.Account)
 			for _, privKey := range v.KeyBag {
-				privateKeyMap[privKey.PublicKey().String()] = privKey
 				accountMap[privKey.PublicKey().String()] = types.AccountFromPrivateKeyBytes(privKey)
 			}
 
 			c := client.NewClient(cfg.EndpointList)
-
-			res, err := c.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
-				Commitment: client.CommitmentConfirmed,
-			})
-			if err != nil {
-				fmt.Printf("get recent block hash error, err: %v\n", err)
-			}
 
 			stakeManagerProgramID := common.PublicKeyFromString(cfg.StakeManagerProgramID)
 
@@ -70,11 +61,12 @@ func stakeManagerSetUnbondingDurationCmd() *cobra.Command {
 				return fmt.Errorf("admin not exit in vault")
 			}
 			stakeManager := common.PublicKeyFromString(cfg.StakeManagerAddress)
+			newFeeRecipient := common.PublicKeyFromString(cfg.NewFeeRecipientAddress)
 
 			fmt.Println("stakeManager account:", stakeManager.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("UnbondingDuration:", cfg.UnbondingDuration)
+			fmt.Println("newFeeRecipient:", newFeeRecipient.ToBase58())
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -91,13 +83,23 @@ func stakeManagerSetUnbondingDurationCmd() *cobra.Command {
 				}
 			}
 
+			res, err := c.GetLatestBlockhash(context.Background(), client.GetLatestBlockhashConfig{
+				Commitment: client.CommitmentConfirmed,
+			})
+			if err != nil {
+				fmt.Printf("get recent block hash error, err: %v\n", err)
+			}
+			if len(cfg.NewFeeRecipientAddress) == 0 {
+				return fmt.Errorf("newAdmin empty")
+			}
+
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
-					rsolprog.SetUnbondingDuration(
+					rsolprog.TransferFeeRecipient(
 						stakeManagerProgramID,
 						stakeManager,
 						adminAccount.PublicKey,
-						cfg.UnbondingDuration,
+						newFeeRecipient,
 					),
 				},
 				Signers:         []types.Account{feePayerAccount, adminAccount},
@@ -112,7 +114,7 @@ func stakeManagerSetUnbondingDurationCmd() *cobra.Command {
 				fmt.Printf("send tx error, err: %v\n", err)
 			}
 
-			fmt.Println("SetUnbondingDuration txHash:", txHash)
+			fmt.Println("transfer fee recipient txHash:", txHash)
 
 			return nil
 		},

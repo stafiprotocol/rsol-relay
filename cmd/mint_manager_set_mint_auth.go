@@ -26,7 +26,7 @@ func mintManagerSetMintAuth() *cobra.Command {
 			}
 			fmt.Printf("config path: %s\n", configPath)
 
-			cfg, err := config.LoadInitConfig(configPath)
+			cfg, err := config.LoadSettingsConfig(configPath)
 			if err != nil {
 				return err
 			}
@@ -69,17 +69,13 @@ func mintManagerSetMintAuth() *cobra.Command {
 			if !exist {
 				return fmt.Errorf("admin not exit in vault")
 			}
-			mintManagerAccount, exist := accountMap[cfg.MintManagerAccount]
-			if !exist {
-				return fmt.Errorf("mintManager not exit in vault")
-			}
 
 			newMintAuthPubkeys := make([]common.PublicKey, 0)
 			for _, auth := range cfg.MintAuthorities {
 				newMintAuthPubkeys = append(newMintAuthPubkeys, common.PublicKeyFromString(auth))
 			}
 
-			fmt.Println("mintManager account:", mintManagerAccount.PublicKey.ToBase58())
+			fmt.Println("mintManager account:", cfg.MintManagerAddress)
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
 			fmt.Println("mint authorities:", newMintAuthPubkeys)
@@ -99,11 +95,13 @@ func mintManagerSetMintAuth() *cobra.Command {
 				}
 			}
 
+			mintManager := common.PublicKeyFromString(cfg.MintManagerAddress)
+
 			rawTx, err := types.CreateRawTransaction(types.CreateRawTransactionParam{
 				Instructions: []types.Instruction{
 					minterprog.SetExtMintAuthorities(
 						mintManagerProgramID,
-						mintManagerAccount.PublicKey,
+						mintManager,
 						adminAccount.PublicKey,
 						newMintAuthPubkeys,
 					),

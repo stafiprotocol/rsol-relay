@@ -26,7 +26,7 @@ func upgradeStakeManagerCmd() *cobra.Command {
 			}
 			fmt.Printf("config path: %s\n", configPath)
 
-			cfg, err := config.LoadInitConfig(configPath)
+			cfg, err := config.LoadSettingsConfig(configPath)
 			if err != nil {
 				return err
 			}
@@ -69,12 +69,8 @@ func upgradeStakeManagerCmd() *cobra.Command {
 			if !exist {
 				return fmt.Errorf("admin not exit in vault")
 			}
-			stakeManagerAccount, exist := accountMap[cfg.StakeManagerAccount]
-			if !exist {
-				return fmt.Errorf("stakeManager not exit in vault")
-			}
-
-			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
+			stakeManager := common.PublicKeyFromString(cfg.StakeManagerAddress)
+			fmt.Println("stakeManager account:", stakeManager.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
 		Out:
@@ -97,7 +93,7 @@ func upgradeStakeManagerCmd() *cobra.Command {
 				Instructions: []types.Instruction{
 					rsolprog.UpgradeStakeManager(
 						stakeManagerProgramID,
-						stakeManagerAccount.PublicKey,
+						stakeManager,
 						adminAccount.PublicKey,
 					),
 				},

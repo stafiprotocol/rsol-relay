@@ -26,7 +26,7 @@ func stakeManagerAddValidator() *cobra.Command {
 			}
 			fmt.Printf("config path: %s\n", configPath)
 
-			cfg, err := config.LoadInitConfig(configPath)
+			cfg, err := config.LoadSettingsConfig(configPath)
 			if err != nil {
 				return err
 			}
@@ -69,17 +69,14 @@ func stakeManagerAddValidator() *cobra.Command {
 			if !exist {
 				return fmt.Errorf("admin not exit in vault")
 			}
-			stakeManagerAccount, exist := accountMap[cfg.StakeManagerAccount]
-			if !exist {
-				return fmt.Errorf("stakeManager not exit in vault")
-			}
 
 			addValidatorPubkey := common.PublicKeyFromString(cfg.AddValidatorAddress)
+			stakeManager := common.PublicKeyFromString(cfg.StakeManagerAddress)
 
-			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
+			fmt.Println("stakeManager account:", stakeManager.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
-			fmt.Println("addValidatorAddress:", cfg.AddValidatorAddress)
+			fmt.Println("addValidatorAddress:", addValidatorPubkey.ToBase58())
 		Out:
 			for {
 				fmt.Println("\ncheck config info, then press (y/n) to continue:")
@@ -100,7 +97,7 @@ func stakeManagerAddValidator() *cobra.Command {
 				Instructions: []types.Instruction{
 					rsolprog.AddValidator(
 						stakeManagerProgramID,
-						stakeManagerAccount.PublicKey,
+						stakeManager,
 						adminAccount.PublicKey,
 						addValidatorPubkey,
 					),

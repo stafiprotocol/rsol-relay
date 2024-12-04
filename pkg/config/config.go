@@ -36,14 +36,6 @@ type ConfigInit struct {
 	Rate             uint64
 	TotalRSolSupply  uint64
 	TotalProtocolFee uint64
-
-	// set related
-	RateChangeLimit        uint64
-	UnbondingDuration      uint64
-	UnstakeFeeCommission   uint64
-	AddValidatorAddress    string
-	RemoveValidatorAddress string
-	MintAuthorities        []string
 }
 
 func LoadInitConfig(configFilePath string) (*ConfigInit, error) {
@@ -54,8 +46,51 @@ func LoadInitConfig(configFilePath string) (*ConfigInit, error) {
 
 	return &cfg, nil
 }
-
 func loadSysConfigInit(path string, config *ConfigInit) error {
+	_, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	if _, err := toml.DecodeFile(path, config); err != nil {
+		return err
+	}
+	fmt.Println("load config success")
+	return nil
+}
+
+type ConfigSettings struct {
+	EndpointList []string // url for  rpc endpoint
+	KeystorePath string
+
+	StakeManagerProgramID string
+	MintManagerProgramID  string
+	StakeManagerAddress   string
+	MintManagerAddress    string
+
+	FeePayerAccount string
+	AdminAccount    string
+
+	// set related
+	RateChangeLimit        uint64
+	UnbondingDuration      uint64
+	UnstakeFeeCommission   uint64
+	AddValidatorAddress    string
+	RemoveValidatorAddress string
+	NewAdminAddress        string
+	NewFeeRecipientAddress string
+	MintAuthorities        []string
+}
+
+func LoadSettingsConfig(configFilePath string) (*ConfigSettings, error) {
+	var cfg = ConfigSettings{}
+	if err := loadSysConfigSettings(configFilePath, &cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
+}
+
+func loadSysConfigSettings(path string, config *ConfigSettings) error {
 	_, err := os.Open(path)
 	if err != nil {
 		return err

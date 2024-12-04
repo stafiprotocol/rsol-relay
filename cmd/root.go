@@ -72,6 +72,8 @@ func stakeManagerCmd() *cobra.Command {
 		upgradeStakeManagerCmd(),
 		stakeManagerAddValidator(),
 		stakeManagerRemoveValidator(),
+		stakeManagerTransferAdminCmd(),
+		stakeManagerTransferFeeRecipientCmd(),
 	)
 	return cmd
 }
@@ -85,6 +87,7 @@ func mintManagerCmd() *cobra.Command {
 	cmd.AddCommand(
 		mintManagerInitCmd(),
 		mintManagerSetMintAuth(),
+		mintManagerTransferAdminCmd(),
 	)
 	return cmd
 }

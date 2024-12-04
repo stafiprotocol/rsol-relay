@@ -26,7 +26,7 @@ func stakeManagerSetRateLimitCmd() *cobra.Command {
 			}
 			fmt.Printf("config path: %s\n", configPath)
 
-			cfg, err := config.LoadInitConfig(configPath)
+			cfg, err := config.LoadSettingsConfig(configPath)
 			if err != nil {
 				return err
 			}
@@ -69,12 +69,9 @@ func stakeManagerSetRateLimitCmd() *cobra.Command {
 			if !exist {
 				return fmt.Errorf("admin not exit in vault")
 			}
-			stakeManagerAccount, exist := accountMap[cfg.StakeManagerAccount]
-			if !exist {
-				return fmt.Errorf("stakeManager not exit in vault")
-			}
+			stakeManager := common.PublicKeyFromString(cfg.StakeManagerAddress)
 
-			fmt.Println("stakeManager account:", stakeManagerAccount.PublicKey.ToBase58())
+			fmt.Println("stakeManager account:", stakeManager.ToBase58())
 			fmt.Println("admin", adminAccount.PublicKey.ToBase58())
 			fmt.Println("feePayer:", feePayerAccount.PublicKey.ToBase58())
 			fmt.Println("RateChangeLimit:", cfg.RateChangeLimit)
@@ -98,7 +95,7 @@ func stakeManagerSetRateLimitCmd() *cobra.Command {
 				Instructions: []types.Instruction{
 					rsolprog.SetRateChangeLimit(
 						stakeManagerProgramID,
-						stakeManagerAccount.PublicKey,
+						stakeManager,
 						adminAccount.PublicKey,
 						cfg.RateChangeLimit,
 					),

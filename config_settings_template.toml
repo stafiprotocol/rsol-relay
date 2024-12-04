@@ -1,0 +1,20 @@
+
+EndpointList = ["https://api.devnet.solana.com"]
+KeystorePath = "./keys/solana_keys.json"
+
+StakeManagerProgramID = "5N1PkgbPx5Qs3eGaJre16AHsNMRPYM9JSwxXDG83tWX9"
+MintManagerProgramID = "HDb577JnkPHLFpfbTg1ncX9jmVHGjzX6S9bgZvNnXjVj"
+StakeManagerAddress = "FccgufF6s9WivdfZYKsR52DWyN9fFMyELvKjyJNCeDkj"
+MintManagerAddress = "5ou6pU6ByghiA148DokoVQLpPqGcnww9qS8TQzwcmQcx"
+
+FeePayerAccount = "CCD2dZ17Gse1EEadCznr94bMNyiFsEfAmywwiFuP5G34" # need private key
+AdminAccount = "AcHoouLiNg8uxzwrXPSjTKEMfvDmkKpXyU9uGY61QASh"    # need private key
+
+RateChangeLimit = 100000000 # used by stake-manager set-rate-change-limit 
+UnbondingDuration = 1       # used by stake-manager set-unbonding-duration
+UnstakeFeeCommission = 0    # used by stake-manager set-unstake-fee-commission
+AddValidatorAddress = ""    # used by stake-manager add-validator
+RemoveValidatorAddress = "" # used by stake-manager remove-validator
+MintAuthorities = []        # used by mint-manager set-mint-auth
+NewAdminAddress = ""        # used by mint-manager/stake-manger transfer-admin
+NewFeeRecipientAddress = "" # used by stake-manger transfer-fee-recipient

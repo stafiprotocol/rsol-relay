@@ -22,10 +22,3 @@ LatestEra = 0
 Rate = 1000000000
 TotalRSolSupply = 0
 TotalProtocolFee = 0
-
-RateChangeLimit = 100000000 # used by rsol-set-rate-change-limit 
-UnbondingDuration = 1       # used by rsol-set-unbonding-duration
-UnstakeFeeCommission = 0    # used by rsol-set-unstake-fee-commission
-AddValidatorAddress = ""    # used by rsol-add-validator
-RemoveValidatorAddress = "" # used by rsol-remove-validator
-MintAuthorities = []        # used by mint-manager-set-mint-auth
