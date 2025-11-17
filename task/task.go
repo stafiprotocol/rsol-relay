@@ -124,10 +124,12 @@ func (task *Task) Stop() {
 func (s *Task) handler() {
 	logrus.Info("start handlers")
 	retry := 0
+	var err error
 
 Out:
 	for {
 		if retry > 200 {
+			logrus.Errorf("handler reach retry limit, err: %s", err.Error())
 			utils.ShutdownRequestChannel <- struct{}{}
 			return
 		}
@@ -142,9 +144,9 @@ Out:
 				funcName := handler.name
 				logrus.Debugf("handler %s start...", funcName)
 
-				err := handler.method()
+				err = handler.method()
 				if err != nil {
-					logrus.Warnf("handler %s failed: %s, will retry.", funcName, err)
+					logrus.Debugf("handler %s failed: %s, will retry.", funcName, err)
 					time.Sleep(time.Second * 6)
 					retry++
 					continue Out
